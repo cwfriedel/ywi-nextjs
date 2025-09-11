@@ -16,8 +16,8 @@ export const promos: Promo[] = [
   {
     id: 'rfp-fuels-contractor',
     kind: 'rfp',
-    title: 'Request for Proposals: 253-Acre Timber Harvest in Nevada County',
-    blurb: 'Submit proposals for a 253-acre timber harvest. Key dates, submission, and live Addenda/Q&A.',
+    title: 'Request for Proposals: 263-Acre Timber Harvest in Nevada County',
+    blurb: 'Submit proposals for a 263-acre timber harvest. Key dates, submission, and live Addenda/Q&A.',
     ctaLabel: 'View RFP details',
     ctaHref: '/rfps/inimim-phase-3',
     start: '2025-09-11',

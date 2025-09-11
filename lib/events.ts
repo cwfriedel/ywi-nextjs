@@ -39,7 +39,7 @@ export const EVENTS: EventItem[] = [
     date: "2025-09-17",
     time: "10:00 AM – 12:00 PM",
     location: "17894 Tyler Foote Rd, Nevada City, CA 95959",
-    blurb: "For contractors bidding on 253-acre timber harvest.",
+    blurb: "For contractors bidding on 263-acre timber harvest.",
     url: "/events/bid-walk-2025",
     contactName: "Chris Friedel",
     contactEmail: "chris@yubawatershedinstitute.org"
