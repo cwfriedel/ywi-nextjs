@@ -31,7 +31,7 @@ const RFPS: Rfp[] = [
     dueISO: "2025-10-03T23:59:00Z",
     submitEmail: "chris@yubawatershedinstitute.org",
     pdfUrl: "/rfp/ywi-rfp-timber-harvest-2025.pdf",
-    acres: 253,
+    acres: 263,
     funder: "Sierra Nevada Conservancy",
     treatments: ["Timber harvest", "Slash piling (no mastication)"],
     status: "open",
