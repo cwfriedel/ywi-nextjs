@@ -29,54 +29,71 @@ export default function AddToCalendar({
 
   const encoded = (s?: string) => encodeURIComponent(s ?? "");
 
-  // Google Calendar
-  const googleHref =
-    `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-    `&text=${encoded(title)}` +
-    `&dates=${datesParam}` +
-    `&details=${encoded(details)}` +
-    `&location=${encoded(location)}` +
-    `&ctz=${encodeURIComponent(timezone)}`;
+  const urlBuilders = {
+    google: () =>
+      `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encoded(title)}` +
+      `&dates=${datesParam}` +
+      `&details=${encoded(details)}` +
+      `&location=${encoded(location)}` +
+      `&ctz=${encodeURIComponent(timezone)}`,
+    outlookLive: () =>
+      `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent` +
+      `&subject=${encoded(title)}` +
+      `&startdt=${encodeURIComponent(startISO)}` +
+      (endISO ? `&enddt=${encodeURIComponent(endISO)}` : ``) +
+      `&body=${encoded(details)}` +
+      `&location=${encoded(location)}`,
+    outlookO365: () =>
+      `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent` +
+      `&subject=${encoded(title)}` +
+      `&startdt=${encodeURIComponent(startISO)}` +
+      (endISO ? `&enddt=${encodeURIComponent(endISO)}` : ``) +
+      `&body=${encoded(details)}` +
+      `&location=${encoded(location)}`,
+    yahoo: () => {
+      const dur = endISO ? `` : `&dur=0100`;
+      return (
+        `https://calendar.yahoo.com/?v=60&view=d&type=20` +
+        `&title=${encoded(title)}` +
+        `&st=${datesParam.split("/")[0]}` +
+        (endISO ? `&et=${datesParam.split("/")[1]}` : dur) +
+        `&desc=${encoded(details)}` +
+        `&in_loc=${encoded(location)}`
+      );
+    },
+  } as const;
 
-  // Outlook.com (consumer)
-  const outlookLiveHref =
-    `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent` +
-    `&subject=${encoded(title)}` +
-    `&startdt=${encodeURIComponent(startISO)}` +
-    (endISO ? `&enddt=${encodeURIComponent(endISO)}` : ``) +
-    `&body=${encoded(details)}` +
-    `&location=${encoded(location)}`;
-
-  // Office 365 / Outlook for work/school
-  const outlookO365Href =
-    `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent` +
-    `&subject=${encoded(title)}` +
-    `&startdt=${encodeURIComponent(startISO)}` +
-    (endISO ? `&enddt=${encodeURIComponent(endISO)}` : ``) +
-    `&body=${encoded(details)}` +
-    `&location=${encoded(location)}`;
-
-  // Yahoo
-  // Yahoo needs start + duration OR end; we’ll pass duration if no end time was parsed
-  const dur = endISO ? `` : `&dur=0100`; // 1 hour
-  const yahooHref =
-    `https://calendar.yahoo.com/?v=60&view=d&type=20` +
-    `&title=${encoded(title)}` +
-    `&st=${datesParam.split("/")[0]}` +
-    (endISO ? `&et=${datesParam.split("/")[1]}` : dur) +
-    `&desc=${encoded(details)}` +
-    `&in_loc=${encoded(location)}`;
+  const labels: Record<keyof typeof urlBuilders, string> = {
+    google: "Add to Google",
+    outlookLive: "Add to Outlook.com",
+    outlookO365: "Add to Office 365",
+    yahoo: "Add to Yahoo",
+  };
 
   // Apple: best is your .ics route (works on iOS/macOS)
   const appleHref = `/events/${slug}/event.ics`;
 
   return (
     <div className="flex flex-wrap gap-2">
-      <a className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50" href={googleHref} target="_blank" rel="noopener noreferrer">Add to Google</a>
-      <a className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50" href={outlookLiveHref} target="_blank" rel="noopener noreferrer">Add to Outlook.com</a>
-      <a className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50" href={outlookO365Href} target="_blank" rel="noopener noreferrer">Add to Office 365</a>
-      <a className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50" href={yahooHref} target="_blank" rel="noopener noreferrer">Add to Yahoo</a>
-      <Link className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50" href={appleHref} prefetch={false}>Download .ics (Apple)</Link>
+      {Object.entries(urlBuilders).map(([key, build]) => (
+        <a
+          key={key}
+          className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50"
+          href={build()}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {labels[key as keyof typeof labels]}
+        </a>
+      ))}
+      <Link
+        className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50"
+        href={appleHref}
+        prefetch={false}
+      >
+        Download .ics (Apple)
+      </Link>
     </div>
   );
 }
