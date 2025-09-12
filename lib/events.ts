@@ -73,7 +73,7 @@ export function getEventBySlug(slug: string): EventItem | undefined {
 
   // 1) explicit slug on the item
   const byExplicitSlug = EVENTS.find(
-    (e: any) => typeof e.slug === "string" && e.slug.toLowerCase() === needle
+    e => typeof e.slug === "string" && e.slug.toLowerCase() === needle
   );
   if (byExplicitSlug) return byExplicitSlug;
 
