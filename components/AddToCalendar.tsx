@@ -1,37 +1,11 @@
 // components/AddToCalendar.tsx
 "use client";
 import Link from "next/link";
+import { parseTimeLabel, localToUtcISO } from "@/lib/eventTime";
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 function toUtcStamp(d: Date) {
   return `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
-}
-
-// Parse "10:00 AM – 12:00 PM" (en dash or hyphen)
-function parseTimeLabel(label?: string): { sh?: number; sm?: number; eh?: number; em?: number } {
-  if (!label) return {};
-  const [a, b] = label.split(/–|-/).map(s => s.trim());
-  const toHM = (s?: string) => {
-    if (!s) return {};
-    const m = s.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
-    if (!m) return {};
-    let h = parseInt(m[1], 10);
-    const min = m[2] ? parseInt(m[2], 10) : 0;
-    const ap = m[3].toUpperCase();
-    if (ap === "PM" && h !== 12) h += 12;
-    if (ap === "AM" && h === 12) h = 0;
-    return { h, min };
-  };
-  const s = toHM(a);
-  const e = toHM(b);
-  return { sh: (s as any).h, sm: (s as any).min, eh: (e as any).h, em: (e as any).min };
-}
-
-// Interpret as local time, output correct UTC for URLs
-function localToUtcISO(dateStr: string, h = 9, m = 0) {
-  const d = new Date(dateStr + "T00:00:00");
-  d.setHours(h, m, 0, 0);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
 }
 
 export default function AddToCalendar({
