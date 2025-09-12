@@ -5,6 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getEventBySlug } from "@/lib/events";            // adjust if your path is "@/lib/events/events"
 import AddToCalendar from "@/components/AddToCalendar";   // <-- import at top (once)
+import { jsonLdForEvent } from "@/lib/eventMetadata";
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   weekday: "short",
@@ -26,25 +27,6 @@ function fmtRange(startISO?: string, endISO?: string) {
     return `${start.toLocaleDateString(undefined, optsDate)} • ${start.toLocaleTimeString(undefined, optsTime)}${end ? `–${end.toLocaleTimeString(undefined, optsTime)}` : ""}`;
   }
   return `${start.toLocaleDateString(undefined, optsDate)} ${start.toLocaleTimeString(undefined, optsTime)} – ${end.toLocaleDateString(undefined, optsDate)} ${end.toLocaleTimeString(undefined, optsTime)}`;
-}
-
-// JSON-LD builder; prefers your human fields, falls back to ISO if present
-function jsonLdForEvent(e: any, slug: string) {
-  const start = e.startISO ?? e.date ?? e.start;
-  const end = e.endISO ?? e.end ?? e.date;
-  const location = e.venue ?? e.location ?? "";
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: e.title,
-    startDate: start,
-    endDate: end,
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: location ? { "@type": "Place", name: location } : undefined,
-    organizer: { "@type": "Organization", name: "Yuba Watershed Institute" },
-    url: `https://www.example.org/events/${slug}`, // TODO: set your real domain
-    description: e.summary ?? e.blurb ?? e.description ?? "",
-  };
 }
 
 // Metadata
