@@ -8,15 +8,14 @@
   --brown:#66513c;
   --stone:#6b7280;
   --accent:#0ea5e9;
-  --accent-700:#0369a1;
   --paper:#f8fafc;
 }
 
 html, body { height: 100%; }
 body { @apply bg-paper text-stone font-ui; }
 
-.btn-primary { @apply inline-flex items-center justify-center rounded-xl px-5 py-3 font-semibold bg-accent text-white shadow-md hover:bg-accent7 transition-colors; }
-.link { @apply text-accent hover:text-accent7 underline underline-offset-2; }
+.btn-primary { @apply inline-flex items-center justify-center rounded-xl px-5 py-3 font-semibold bg-accent text-white shadow-md hover:bg-accent-700 transition-colors; }
+.link { @apply text-accent hover:text-accent-700 underline underline-offset-2; }
 .card { @apply bg-white/90 backdrop-blur rounded-2xl shadow-sm p-6; }
 
 /* hero overlay effect */

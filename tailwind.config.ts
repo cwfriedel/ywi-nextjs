@@ -11,7 +11,7 @@ const config: Config = {
         brown: '#66513c',
         stone: '#6b7280',
         accent: '#0ea5e9',
-        accent7: '#0369a1',
+        'accent-700': '#0369a1',
         paper: '#f8fafc'
       },
       fontFamily: {
