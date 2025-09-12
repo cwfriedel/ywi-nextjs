@@ -13,38 +13,9 @@ export type EventItem = {
   contactUrl?: string;    // NEW (optional)
 };
 
-export const EVENTS: EventItem[] = [
-  // Example seed data; replace with your real events
-//  {
-//    id: "fungus-foray-2026",
-//    title: "Annual Fungus Foray",
-//    date: "2025-11-08",
-//    time: "9:00 AM – 2:00 PM",
-//    location: "Nevada City, CA",
-//    blurb: "Guided mushroom identification and forest ecology.",
-//    url: "/events/fungus-foray",
-//  },
-//  {
-//    id: "workday-fuels-1101",
-//    title: "Stewardship Workday: Fuels Reduction",
-//    date: "2025-10-12",
-//    time: "9:00 AM – 12:00 PM",
-//    location: "Yuba River watershed",
-//    blurb: "Hands-on fuels reduction to improve forest health.",
-//  },
-  // …
-  {
-    id: "bid-walk-2025",
-    title: "Pre-Proposal Field Meeting",
-    date: "2025-09-17",
-    time: "10:00 AM – 12:00 PM",
-    location: "17894 Tyler Foote Rd, Nevada City, CA 95959",
-    blurb: "For contractors bidding on 263-acre timber harvest.",
-    url: "/events/bid-walk-2025",
-    contactName: "Chris Friedel",
-    contactEmail: "chris@yubawatershedinstitute.org"
-  }
-];
+import eventsData from '@/data/events.json';
+
+export const EVENTS: EventItem[] = eventsData as EventItem[];
 // Create a safe, URL-friendly slug
 function slugify(input: string) {
   return input
