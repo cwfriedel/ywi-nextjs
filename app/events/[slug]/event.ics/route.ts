@@ -1,10 +1,20 @@
 // app/events/[slug]/event.ics/route.ts
 import { NextRequest } from "next/server";
-import { getEventBySlug } from "@/lib/events"; // adjust if your file is "@/lib/events/events"
+import { getEventBySlug, type EventItem } from "@/lib/events"; // adjust if your file is "@/lib/events/events"
 import { parseTimeLabel, localToUtcISO, toICSDate } from "@/lib/eventTime";
 
+type EventForIcs = EventItem & {
+  startISO?: string;
+  endISO?: string;
+  start?: string;
+  end?: string;
+  venue?: string;
+  description?: string;
+  blurb?: string;
+};
+
 export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const e: any = getEventBySlug(params.slug);
+  const e = getEventBySlug(params.slug) as EventForIcs | undefined;
   if (!e) return new Response("Not found", { status: 404 });
 
   // Build start/end from your data (date + time), with fallbacks
@@ -27,11 +37,15 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
     ...(startISO ? [`DTSTART:${toICSDate(startISO)}`] : []),
     ...(endISO ? [`DTEND:${toICSDate(endISO)}`] : []),
     `SUMMARY:${e.title ?? "Event"}`,
-    e.location || e.venue ? `LOCATION:${(e.location ?? e.venue).toString().replace(/\n/g, "\\n")}` : "",
-    (e.description || e.blurb) ? `DESCRIPTION:${(e.description ?? e.blurb).toString().replace(/\n/g, "\\n")}` : "",
+    ...(e.location || e.venue
+      ? [`LOCATION:${(e.location ?? e.venue ?? "").toString().replace(/\n/g, "\\n")}`]
+      : []),
+    ...(e.description || e.blurb
+      ? [`DESCRIPTION:${(e.description ?? e.blurb ?? "").toString().replace(/\n/g, "\\n")}`]
+      : []),
     "END:VEVENT",
     "END:VCALENDAR",
-  ].filter(Boolean).join("\r\n");
+  ].join("\r\n");
 
   return new Response(lines, {
     headers: {
