@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getEventBySlug } from "@/lib/events";            // adjust if your path is "@/lib/events/events"
-import AddToCalendar from "@/components/AddToCalendar";   // <-- import at top (once)
+import { getEventBySlug } from "@/lib/events";
+import AddToCalendar from "@/components/AddToCalendar";
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   weekday: "short",
