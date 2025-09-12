@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { cookies } from 'next/headers';
 
 const USERS_PATH = path.join(process.cwd(), 'data', 'users.json');
+const SESSION_SECRET = process.env.SESSION_SECRET ?? 'dev-secret';
 
 async function readUsers(): Promise<Record<string, { passwordHash: string }>> {
   const txt = await fs.readFile(USERS_PATH, 'utf8');
@@ -18,8 +19,21 @@ export async function verifyUser(username: string, password: string) {
   return hash === record.passwordHash;
 }
 
+function sign(username: string) {
+  return crypto.createHmac('sha256', SESSION_SECRET).update(username).digest('hex');
+}
+
+export function createSession(username: string) {
+  return `${username}:${sign(username)}`;
+}
+
 export function currentUser() {
-  return cookies().get('user')?.value;
+  const token = cookies().get('user')?.value;
+  if (!token) return undefined;
+  const [username, signature] = token.split(':');
+  if (!username || !signature) return undefined;
+  if (sign(username) !== signature) return undefined;
+  return username;
 }
 
 export function isAuthenticated() {
