@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getEventBySlug } from "@/lib/events";
 import AddToCalendar from "@/components/AddToCalendar";
-import { jsonLdForEvent } from "@/lib/eventMetadata";
+import { jsonLdForEvent, fmtRange } from "@/lib/eventMetadata";
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   weekday: "short",
@@ -14,19 +14,6 @@ const DATE_OPTS: Intl.DateTimeFormatOptions = {
 };
 
 type Params = { params: { slug: string } };
-
-// Display-only range if you have ISO times
-function fmtRange(startISO?: string, endISO?: string) {
-  if (!startISO) return "";
-  const start = new Date(startISO);
-  const end = endISO ? new Date(endISO) : undefined;
-  const optsDate: Intl.DateTimeFormatOptions = { weekday: "short", month: "long", day: "numeric", year: "numeric" };
-  const optsTime: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit" };
-  if (!end || start.toDateString() === end.toDateString()) {
-    return `${start.toLocaleDateString(undefined, optsDate)} • ${start.toLocaleTimeString(undefined, optsTime)}${end ? `–${end.toLocaleTimeString(undefined, optsTime)}` : ""}`;
-  }
-  return `${start.toLocaleDateString(undefined, optsDate)} ${start.toLocaleTimeString(undefined, optsTime)} – ${end.toLocaleDateString(undefined, optsDate)} ${end.toLocaleTimeString(undefined, optsTime)}`;
-}
 
 // Metadata
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -124,6 +111,32 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             <div className="grid grid-cols-[8rem_1fr] gap-x-4 py-2">
               <dt className="text-gray-500">Where</dt>
               <dd>{venue}</dd>
+            </div>
+          )}
+          {e.contactName && (
+            <div className="grid grid-cols-[8rem_1fr] gap-x-4 py-2">
+              <dt className="text-gray-500">Contact</dt>
+              <dd>{e.contactName}</dd>
+            </div>
+          )}
+          {e.contactEmail && (
+            <div className="grid grid-cols-[8rem_1fr] gap-x-4 py-2">
+              <dt className="text-gray-500">Email</dt>
+              <dd>
+                <a href={`mailto:${e.contactEmail}`} className="underline">
+                  {e.contactEmail}
+                </a>
+              </dd>
+            </div>
+          )}
+          {e.contactPhone && (
+            <div className="grid grid-cols-[8rem_1fr] gap-x-4 py-2">
+              <dt className="text-gray-500">Phone</dt>
+              <dd>
+                <a href={`tel:${e.contactPhone}`} className="underline">
+                  {e.contactPhone}
+                </a>
+              </dd>
             </div>
           )}
         </dl>
