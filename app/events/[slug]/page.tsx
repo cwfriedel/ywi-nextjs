@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getEventBySlug, type EventItem } from "@/lib/events";            // adjust if your path is "@/lib/events/events"
 import AddToCalendar from "@/components/AddToCalendar";   // <-- import at top (once)
 
+
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   weekday: "short",
   month: "long",
