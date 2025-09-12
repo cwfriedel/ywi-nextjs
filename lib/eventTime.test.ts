@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseTimeLabel, localToUtcISO, toICSDate } from './eventTime';
+import { parseTimeLabel, localToUtcISO, toICSDate } from './eventTime.ts';
 
 test('parses a typical range', () => {
   assert.deepStrictEqual(parseTimeLabel('10:00 AM – 12:00 PM'), { sh: 10, sm: 0, eh: 12, em: 0 });
