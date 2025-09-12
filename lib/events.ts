@@ -44,7 +44,15 @@ export const EVENTS: EventItem[] = [
     contactName: "Chris Friedel",
     contactEmail: "chris@yubawatershedinstitute.org"
   }
-];
+].map(e => ({ ...e, slug: (e.slug ?? slugify(e.title)).toLowerCase() }));
+
+const EVENTS_BY_SLUG: Record<string, EventItem> = EVENTS.reduce(
+  (acc, e) => {
+    acc[e.slug!] = e;
+    return acc;
+  },
+  {} as Record<string, EventItem>
+);
 // Create a safe, URL-friendly slug
 function slugify(input: string) {
   return input
@@ -56,33 +64,10 @@ function slugify(input: string) {
 }
 
 /**
- * Find an event by slug.
- * Match order:
- *   1) explicit event.slug (if present)
- *   2) event.id (exact, case-insensitive)
- *   3) slugified event.title
+ * Find an event by slug (case-insensitive).
  */
-
-
-// Helpers
 export function getEventBySlug(slug: string): EventItem | undefined {
-  const needle = slug.toLowerCase();
-
-  // Prefer an existing `slugify` helper if present; fallback to `__slugify`
-  const safeSlugify = (typeof slugify === "function" ? slugify : __slugify) as (s: string) => string;
-
-  // 1) explicit slug on the item
-  const byExplicitSlug = EVENTS.find(
-    (e: any) => typeof e.slug === "string" && e.slug.toLowerCase() === needle
-  );
-  if (byExplicitSlug) return byExplicitSlug;
-
-  // 2) id match (case-insensitive)
-  const byId = EVENTS.find(e => (e.id ?? "").toLowerCase() === needle);
-  if (byId) return byId;
-
-  // 3) title-derived slug match
-  return EVENTS.find(e => safeSlugify(e.title) === needle);
+  return EVENTS_BY_SLUG[slug.toLowerCase()];
 }
 
 
@@ -100,9 +85,5 @@ export function nextN(list: EventItem[], n = 3) {
 }
 
 export function allEvents(): EventItem[] { return EVENTS; }
-
-function __slugify(input: string) {
-  return input.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
-}
 
 
