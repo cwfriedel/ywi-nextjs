@@ -1,14 +1,8 @@
 'use client'
 import { useMemo, useState } from 'react'
-import { EVENTS } from '@/lib/events'
+import { EVENTS, EventItem, eventsForMonth } from '@/lib/events'
 
-type Event = {
-  title: string
-  date: string
-  location?: string
-  description?: string
-  url?: string
-}
+type Event = EventItem & { description?: string }
 
 export default function EventCalendar({ events = EVENTS }: { events?: Event[] }) {
   const [monthOffset, setMonthOffset] = useState(0)
@@ -21,12 +15,7 @@ export default function EventCalendar({ events = EVENTS }: { events?: Event[] })
   const monthEvents = useMemo(() => {
     const m = current.getMonth()
     const y = current.getFullYear()
-    return events
-      .filter(e => {
-        const d = new Date(e.date)
-        return d.getMonth() === m && d.getFullYear() === y
-      })
-      .sort((a, b) => a.date.localeCompare(b.date))
+    return eventsForMonth(events, y, m)
   }, [current, events])
 
   const monthName = current.toLocaleString('default', { month: 'long', year: 'numeric' })
