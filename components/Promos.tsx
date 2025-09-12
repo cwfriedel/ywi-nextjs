@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { promos as data, type Promo } from '@/lib/promos'
+import PromoLink from './PromoLink'
 
 type Props = {
   limit?: number // max number of non-featured cards to show
@@ -37,8 +37,10 @@ export default function Promos({ limit = 3, showBanner = true, storageKey = 'ywi
     } catch {}
   }, [storageKey])
 
-  const now = new Date()
-  const active = useMemo(() => data.filter(p => isActive(p, now) && !dismissed.includes(p.id)), [dismissed])
+  const active = useMemo(() => {
+    const now = new Date()
+    return data.filter(p => isActive(p, now) && !dismissed.includes(p.id))
+  }, [dismissed])
 
   const featured = showBanner ? active.find(p => p.featured) : undefined
   const rest = active
@@ -68,20 +70,11 @@ export default function Promos({ limit = 3, showBanner = true, storageKey = 'ywi
                 <div className="text-xs uppercase tracking-wide opacity-70">{kindBadge(featured.kind)}</div>
                 <h3 className="font-head text-2xl text-forest mt-1">{featured.title}</h3>
                 <p className="mt-2 max-w-2xl">{featured.blurb}</p>
-{featured.ctaHref.endsWith('.pdf') ? (
-  <a
-    href={featured.ctaHref}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-block mt-3 underline text-forest"
-  >
-    {featured.ctaLabel} →
-  </a>
-) : (
-  <Link href={featured.ctaHref} className="inline-block mt-3 underline text-forest">
-    {featured.ctaLabel} →
-  </Link>
-)}
+                <PromoLink
+                  href={featured.ctaHref}
+                  label={featured.ctaLabel}
+                  className="inline-block mt-3 underline text-forest"
+                />
               </div>
               <button
                 type="button"
@@ -103,20 +96,11 @@ export default function Promos({ limit = 3, showBanner = true, storageKey = 'ywi
               <div className="text-xs uppercase tracking-wide opacity-70">{kindBadge(p.kind)}</div>
               <h4 className="font-head text-lg text-forest mt-1">{p.title}</h4>
               <p className="mt-1 text-sm">{p.blurb}</p>
-{p.ctaHref.endsWith('.pdf') ? (
-  <a
-    href={p.ctaHref}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-block mt-3 underline text-forest"
-  >
-    {p.ctaLabel} →
-  </a>
-) : (
-  <Link href={p.ctaHref} className="inline-block mt-3 underline text-forest">
-    {p.ctaLabel} →
-  </Link>
-)}
+              <PromoLink
+                href={p.ctaHref}
+                label={p.ctaLabel}
+                className="inline-block mt-3 underline text-forest"
+              />
             </article>
           ))}
         </div>
