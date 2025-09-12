@@ -86,8 +86,17 @@ export function getEventBySlug(slug: string): EventItem | undefined {
 }
 
 
-export function sortByDateAsc(list: EventItem[]) {
+export function sortByDateAsc<T extends { date: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
+export function eventsForMonth<T extends { date: string }>(list: T[], year: number, month: number): T[] {
+  return sortByDateAsc(
+    list.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear() === year && d.getMonth() === month;
+    })
+  );
 }
 
 export function upcoming(list: EventItem[], from = new Date()) {
