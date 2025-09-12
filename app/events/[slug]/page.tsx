@@ -1,11 +1,10 @@
-// app/events/[slug]/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getEventBySlug, type EventItem } from "@/lib/events";            // adjust if your path is "@/lib/events/events"
-import AddToCalendar from "@/components/AddToCalendar";   // <-- import at top (once)
-
+import { getEventBySlug } from "@/lib/events";
+import AddToCalendar from "@/components/AddToCalendar";
+import { jsonLdForEvent } from "@/lib/eventMetadata";
 
 const DATE_OPTS: Intl.DateTimeFormatOptions = {
   weekday: "short",
@@ -15,18 +14,6 @@ const DATE_OPTS: Intl.DateTimeFormatOptions = {
 };
 
 type Params = { params: { slug: string } };
-
-type EventWithExtras = EventItem & {
-  startISO?: string;
-  endISO?: string;
-  start?: string;
-  end?: string;
-  venue?: string;
-  summary?: string;
-  description?: string;
-  whenHuman?: string;
-  image?: string;
-};
 
 // Display-only range if you have ISO times
 function fmtRange(startISO?: string, endISO?: string) {
@@ -41,46 +28,23 @@ function fmtRange(startISO?: string, endISO?: string) {
   return `${start.toLocaleDateString(undefined, optsDate)} ${start.toLocaleTimeString(undefined, optsTime)} – ${end.toLocaleDateString(undefined, optsDate)} ${end.toLocaleTimeString(undefined, optsTime)}`;
 }
 
-// JSON-LD builder; prefers your human fields, falls back to ISO if present
-function jsonLdForEvent(e: EventWithExtras, slug: string) {
-  const start = e.startISO ?? e.date ?? e.start;
-  const end = e.endISO ?? e.end ?? e.date;
-  const location = e.venue ?? e.location ?? "";
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: e.title,
-    startDate: start,
-    endDate: end,
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: location ? { "@type": "Place", name: location } : undefined,
-    organizer: { "@type": "Organization", name: "Yuba Watershed Institute" },
-    url: `https://www.example.org/events/${slug}`, // TODO: set your real domain
-    description: e.summary ?? e.blurb ?? e.description ?? "",
-  };
-}
-
-// Metadata builder for events
-function eventMetadata(e: EventWithExtras, slug: string): Metadata {
-  const venue = e.venue ?? e.location;
-  const description = e.summary ?? e.blurb ?? e.description ?? (venue ? `Event at ${venue}` : "Event details");
-  return {
-    title: e.title,
-    description,
-    alternates: { canonical: `/events/${slug}` },
-    openGraph: { title: e.title, description },
-  };
-}
-
 // Metadata
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const e = getEventBySlug(params.slug) as EventWithExtras | undefined;
+  const e = getEventBySlug(params.slug);
   if (!e) return {};
-  return eventMetadata(e, params.slug);
+  const venue = (e as any).venue ?? e.location;
+  const desc =
+    (e as any).summary ?? e.blurb ?? (e as any).description ?? (venue ? `Event at ${venue}` : "Event details");
+  return {
+    title: e.title,
+    description: desc,
+    alternates: { canonical: `/events/${params.slug}` },
+    openGraph: { title: e.title, description: desc },
+  };
 }
 
 export default function EventPage({ params }: { params: { slug: string } }) {
-  const e = getEventBySlug(params.slug) as EventWithExtras | undefined;
+  const e: any = getEventBySlug(params.slug);
   if (!e) return notFound();
 
   const slug = e.slug ?? params.slug;
@@ -173,4 +137,3 @@ export default function EventPage({ params }: { params: { slug: string } }) {
     </main>
   );
 }
-
