@@ -137,4 +137,3 @@ export default function EventPage({ params }: { params: { slug: string } }) {
     </main>
   );
 }
-
