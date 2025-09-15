@@ -1,6 +1,7 @@
 // app/events/[slug]/event.ics/route.ts
 import { NextRequest } from "next/server";
-import { getEventBySlug, type EventItem } from "@/lib/events"; // adjust if your file is "@/lib/events/events"
+import { type EventItem } from "@/lib/events"; // adjust if your file is "@/lib/events/events"
+import { getEventBySlug } from "@/lib/events.server";
 import { parseTimeLabel, localToUtcISO, toICSDate } from "@/lib/eventTime";
 
 type EventForIcs = EventItem & {
@@ -14,7 +15,7 @@ type EventForIcs = EventItem & {
 };
 
 export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const e = getEventBySlug(params.slug) as EventForIcs | undefined;
+  const e = await getEventBySlug(params.slug) as EventForIcs | undefined;
   if (!e) return new Response("Not found", { status: 404 });
 
   // Build start/end from your data (date + time), with fallbacks

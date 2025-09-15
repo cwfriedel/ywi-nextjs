@@ -1,10 +1,10 @@
 'use client'
 import { useMemo, useState } from 'react'
-import { EVENTS, EventItem, eventsForMonth } from '@/lib/events'
+import { EventItem, eventsForMonth } from '@/lib/events'
 
 type Event = EventItem & { description?: string }
 
-export default function EventCalendar({ events = EVENTS }: { events?: Event[] }) {
+export default function EventCalendar({ events }: { events: Event[] }) {
   const [monthOffset, setMonthOffset] = useState(0)
 
   const current = useMemo(() => {

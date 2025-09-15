@@ -10,23 +10,7 @@ type Staff = {
 };
 type Board = { name: string; role?: string };
 
-const STAFF: Staff[] = [
-  {
-    name: "Chris Friedel",
-    role: "Executive Director",
-    email: "chris@yubawatershedinstitute.org",
-    headshot: "/images/people/chris.jpg",
-    bio: "Chris Friedel is the Executive Director of the Yuba Watershed Institute, where he has led day-to-day operations and major forest health initiatives since 2018. With nearly two decades of experience in ecological restoration, Chris has worked across both public and private lands in California as a vegetation ecologist, project manager, and nonprofit leader. He has secured more than $3 million in funding for landscape-scale resilience projects in the Yuba River watershed, building collaborations with agencies, landowners, and local communities. Chris holds a B.S. in Earth Systems from Stanford University",
-  },
-  {
-    name: "Theo Fitanides",
-    role: "Field Technician",
-    email: "theo@yubawatershedinstitute.org",
-    headshot: "/images/people/theo.jpg",
-    bio: "Theo Fitanides is a Forestry Technician with the Yuba Watershed Institute, bringing more than a decade of experience in botany, habitat restoration, and native plant cultivation. He has worked with organizations including Sierra Streams Institute, East Bay Regional Park District’s Botanic Garden, and the California Native Plant Society’s Native Here Nursery, where he managed operations and coordinated volunteer programs. Theo’s background also includes roles as a staff botanist and field biologist, conducting nesting bird surveys, habitat assessments, and conservation projects across California and Hawai‘i. A graduate of Cal Poly San Luis Obispo with a B.S. in Biological Sciences, Theo specializes in the ecology and restoration of California native plants and their role in resilient forest ecosystems.",
-  },
-  // Add more staff as needed
-];
+import { readData } from '@/lib/data';
 
 const BOARD: Board[] = [
   { name: "Daniel Nicholson", role: "President" },
@@ -39,7 +23,8 @@ const BOARD: Board[] = [
   // Add directors…
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const STAFF: Staff[] = await readData<Staff[]>('staff');
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
       {/* Intro */}
