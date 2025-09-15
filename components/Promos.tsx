@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { promos as data, type Promo } from '@/lib/promos'
+import { type Promo } from '@/lib/promos'
 import PromoLink from './PromoLink'
 
 type Props = {
@@ -29,6 +29,14 @@ function kindBadge(kind: Promo['kind']) {
 
 export default function Promos({ limit = 3, showBanner = true, storageKey = 'ywi:dismissedPromos' }: Props) {
   const [dismissed, setDismissed] = useState<string[]>([])
+  const [data, setData] = useState<Promo[]>([])
+
+  useEffect(() => {
+    fetch('/api/promos')
+      .then(res => res.json())
+      .then((items: Promo[]) => setData(items))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     try {
@@ -40,7 +48,7 @@ export default function Promos({ limit = 3, showBanner = true, storageKey = 'ywi
   const active = useMemo(() => {
     const now = new Date()
     return data.filter(p => isActive(p, now) && !dismissed.includes(p.id))
-  }, [dismissed])
+  }, [dismissed, data])
 
   const featured = showBanner ? active.find(p => p.featured) : undefined
   const rest = active

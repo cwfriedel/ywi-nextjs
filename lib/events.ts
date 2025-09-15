@@ -13,38 +13,6 @@ export type EventItem = {
   contactUrl?: string;    // NEW (optional)
 };
 
-export const EVENTS: EventItem[] = [
-  // Example seed data; replace with your real events
-//  {
-//    id: "fungus-foray-2026",
-//    title: "Annual Fungus Foray",
-//    date: "2025-11-08",
-//    time: "9:00 AM – 2:00 PM",
-//    location: "Nevada City, CA",
-//    blurb: "Guided mushroom identification and forest ecology.",
-//    url: "/events/fungus-foray",
-//  },
-//  {
-//    id: "workday-fuels-1101",
-//    title: "Stewardship Workday: Fuels Reduction",
-//    date: "2025-10-12",
-//    time: "9:00 AM – 12:00 PM",
-//    location: "Yuba River watershed",
-//    blurb: "Hands-on fuels reduction to improve forest health.",
-//  },
-  // …
-  {
-    id: "bid-walk-2025",
-    title: "Pre-Proposal Field Meeting",
-    date: "2025-09-17",
-    time: "10:00 AM – 12:00 PM",
-    location: "17894 Tyler Foote Rd, Nevada City, CA 95959",
-    blurb: "For contractors bidding on 263-acre timber harvest.",
-    url: "/events/bid-walk-2025",
-    contactName: "Chris Friedel",
-    contactEmail: "chris@yubawatershedinstitute.org"
-  }
-];
 // Create a safe, URL-friendly slug
 function slugify(input: string) {
   return input
@@ -56,19 +24,10 @@ function slugify(input: string) {
 }
 
 // Determine the canonical slug for an event
-function eventSlug(e: EventItem): string {
+export function eventSlug(e: EventItem): string {
   if (e.slug) return e.slug.toLowerCase();
   if (e.id) return e.id.toLowerCase();
   return slugify(e.title);
-}
-
-// Precompute a lookup table of events by slug
-const EVENT_LOOKUP: Record<string, EventItem> = Object.fromEntries(
-  EVENTS.map(e => [eventSlug(e), e])
-);
-
-export function getEventBySlug(slug: string): EventItem | undefined {
-  return EVENT_LOOKUP[slug.toLowerCase()];
 }
 
 
@@ -94,5 +53,4 @@ export function nextN(list: EventItem[], n = 3) {
   return upcoming(list).slice(0, n);
 }
 
-export function allEvents(): EventItem[] { return EVENTS; }
 

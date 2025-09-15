@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getEventBySlug } from "@/lib/events";
+import { getEventBySlug } from "@/lib/events.server";
 import AddToCalendar from "@/components/AddToCalendar";
 import { jsonLdForEvent, fmtRange } from "@/lib/eventMetadata";
 
@@ -17,7 +17,7 @@ type Params = { params: { slug: string } };
 
 // Metadata
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const e = getEventBySlug(params.slug);
+  const e = await getEventBySlug(params.slug);
   if (!e) return {};
   const venue = (e as any).venue ?? e.location;
   const desc =
@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-export default function EventPage({ params }: { params: { slug: string } }) {
-  const e: any = getEventBySlug(params.slug);
+export default async function EventPage({ params }: { params: { slug: string } }) {
+  const e: any = await getEventBySlug(params.slug);
   if (!e) return notFound();
 
   const slug = e.slug ?? params.slug;

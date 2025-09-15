@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { readData, writeData, type EventRecord } from '@/lib/data'
+import { isAuthenticated } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -71,9 +72,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!isAuthenticated()) return jsonError('Unauthorized', 401)
   return persist(request)
 }
 
 export async function PUT(request: Request) {
+  if (!isAuthenticated()) return jsonError('Unauthorized', 401)
   return persist(request)
 }
