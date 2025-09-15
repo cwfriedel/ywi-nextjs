@@ -12,6 +12,4 @@ export type Promo = {
   pinned?: boolean // sort first
 }
 
-import promoData from '@/data/promos.json';
-
-export const promos: Promo[] = promoData as Promo[];
+// server-only helpers should live in lib/promos.server.ts

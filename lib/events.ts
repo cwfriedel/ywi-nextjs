@@ -13,9 +13,6 @@ export type EventItem = {
   contactUrl?: string;    // NEW (optional)
 };
 
-import eventsData from '@/data/events.json';
-
-export const EVENTS: EventItem[] = eventsData as EventItem[];
 // Create a safe, URL-friendly slug
 function slugify(input: string) {
   return input
@@ -27,19 +24,10 @@ function slugify(input: string) {
 }
 
 // Determine the canonical slug for an event
-function eventSlug(e: EventItem): string {
+export function eventSlug(e: EventItem): string {
   if (e.slug) return e.slug.toLowerCase();
   if (e.id) return e.id.toLowerCase();
   return slugify(e.title);
-}
-
-// Precompute a lookup table of events by slug
-const EVENT_LOOKUP: Record<string, EventItem> = Object.fromEntries(
-  EVENTS.map(e => [eventSlug(e), e])
-);
-
-export function getEventBySlug(slug: string): EventItem | undefined {
-  return EVENT_LOOKUP[slug.toLowerCase()];
 }
 
 
@@ -65,5 +53,4 @@ export function nextN(list: EventItem[], n = 3) {
   return upcoming(list).slice(0, n);
 }
 
-export function allEvents(): EventItem[] { return EVENTS; }
 

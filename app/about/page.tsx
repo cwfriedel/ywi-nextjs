@@ -10,9 +10,7 @@ type Staff = {
 };
 type Board = { name: string; role?: string };
 
-import staffData from '@/data/staff.json';
-
-const STAFF: Staff[] = staffData as Staff[];
+import { readData } from '@/lib/data';
 
 const BOARD: Board[] = [
   { name: "Daniel Nicholson", role: "President" },
@@ -25,7 +23,8 @@ const BOARD: Board[] = [
   // Add directors…
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const STAFF: Staff[] = await readData<Staff[]>('staff');
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
       {/* Intro */}
