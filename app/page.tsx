@@ -3,7 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 // Upcoming events
-import { EVENTS, nextN } from '@/lib/events'
+import { nextN } from '@/lib/events'
+import { allEvents } from '@/lib/events.server'
 
 // Current topics (events, meetings, project highlights, RFPs)
 import Promos from '@/components/Promos'
@@ -11,9 +12,10 @@ import Promos from '@/components/Promos'
 // NEW: Mailchimp embed bar
 import NewsletterBar from '@/components/NewsletterBar'
 
-export default function HomePage(){
+export default async function HomePage(){
   // Next 3 upcoming events
-  const items = nextN(EVENTS, 3)
+  const events = await allEvents()
+  const items = nextN(events, 3)
 
   return (
     <div>

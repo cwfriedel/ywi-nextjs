@@ -1,43 +1,41 @@
-'use client'
+'use client';
 
-import { useState, type ChangeEvent, type FormEvent } from 'react'
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from 'react';
 
 export type JsonEditorProps = {
-  endpoint: string
-  initialContent?: string
-  title?: string
-  description?: string
-  submitLabel?: string
-  className?: string
-}
+  endpoint: string;
+  initialContent?: string;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  className?: string;
+};
 
 type FeedbackState =
   | { status: 'idle' }
   | { status: 'success'; message: string }
-  | { status: 'error'; message: string }
+  | { status: 'error'; message: string };
 
-const defaultFeedback: FeedbackState = { status: 'idle' }
+const defaultFeedback: FeedbackState = { status: 'idle' };
 
 function parseResponseMessage(raw: string | null): string | undefined {
-  if (!raw) return undefined
-
+  if (!raw) return undefined;
   try {
-    const data = JSON.parse(raw) as {
-      message?: unknown
-      error?: unknown
-    }
-
-    if (typeof data.error === 'string') return data.error
+    const data = JSON.parse(raw) as { message?: unknown; error?: unknown };
+    if (typeof data.error === 'string') return data.error;
     if (data.error && typeof data.error === 'object' && 'message' in data.error) {
-      const nested = (data.error as { message?: unknown }).message
-      if (typeof nested === 'string') return nested
+      const nested = (data.error as { message?: unknown }).message;
+      if (typeof nested === 'string') return nested;
     }
-
-    if (typeof data.message === 'string') return data.message
-
-    return undefined
+    if (typeof data.message === 'string') return data.message;
+    return undefined;
   } catch {
-    return raw
+    return raw;
   }
 }
 
@@ -49,59 +47,83 @@ export default function JsonEditor({
   submitLabel = 'Save changes',
   className,
 }: JsonEditorProps) {
-  const [content, setContent] = useState(initialContent)
-  const [feedback, setFeedback] = useState<FeedbackState>(defaultFeedback)
-  const [isSaving, setIsSaving] = useState(false)
+  const [content, setContent] = useState(initialContent);
+  const [feedback, setFeedback] = useState<FeedbackState>(defaultFeedback);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch(endpoint, { credentials: 'include' });
+        const raw = await res.text();
+        if (!res.ok) {
+          const msg = parseResponseMessage(raw);
+          setFeedback({ status: 'error', message: msg ?? 'Failed to load data.' });
+          return;
+        }
+        try {
+          const data = JSON.parse(raw);
+          setContent(JSON.stringify(data, null, 2));
+        } catch {
+          setContent(raw);
+        }
+      } catch {
+        setFeedback({ status: 'error', message: 'Failed to load data.' });
+      }
+    }
+    load();
+  }, [endpoint]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setFeedback(defaultFeedback)
+    event.preventDefault();
+    setFeedback(defaultFeedback);
 
     try {
-      JSON.parse(content)
+      JSON.parse(content);
     } catch {
-      setFeedback({ status: 'error', message: 'Invalid JSON.' })
-      return
+      setFeedback({ status: 'error', message: 'Invalid JSON.' });
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: content,
-      })
+        credentials: 'include',
+      });
 
-      const rawBody = await res.text()
-      const bodyMessage = parseResponseMessage(rawBody)
+      const rawBody = await res.text();
+      const bodyMessage = parseResponseMessage(rawBody);
 
       if (!res.ok) {
         setFeedback({
           status: 'error',
           message: bodyMessage ?? 'Failed to save data.',
-        })
-        return
+        });
+        return;
       }
 
       setFeedback({
         status: 'success',
         message: bodyMessage ?? 'Saved.',
-      })
+      });
     } catch (error) {
       setFeedback({
         status: 'error',
         message: error instanceof Error ? error.message : 'Failed to save data.',
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(event.target.value)
-    setFeedback(defaultFeedback)
-  }
+    setContent(event.target.value);
+    setFeedback(defaultFeedback);
+  };
 
   return (
     <form onSubmit={handleSubmit} className={className}>
@@ -130,5 +152,5 @@ export default function JsonEditor({
         ) : null}
       </div>
     </form>
-  )
+  );
 }
