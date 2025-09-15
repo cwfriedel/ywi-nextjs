@@ -2,3 +2,7 @@ node_modules/
 .next/
 .env*
 .DS_Store
+# SQLite database artifacts
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
