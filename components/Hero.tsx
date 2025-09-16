@@ -19,7 +19,7 @@ export default function Hero() {
       <div className="absolute inset-0 flex items-center">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <h1 className="max-w-4xl font-head text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-lg">
-            Protecting the Yuba River Watershed for Generations to Come
+            Preserving the Yuba River Watershed for Generations to Come
           </h1>
           <p className="mt-4 max-w-2xl text-white/90">
             Stewardship and education rooted in the Yuba River watershed.
