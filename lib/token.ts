@@ -1,3 +1,6 @@
+import { webcrypto as nodeCrypto } from 'crypto';
+
+const crypto = globalThis.crypto ?? nodeCrypto;
 const SECRET = process.env.AUTH_SECRET || 'dev-secret';
 const encoder = new TextEncoder();
 
@@ -21,11 +24,11 @@ function hexToBytes(hex: string): ArrayBuffer {
 }
 
 async function getKey() {
-  if (!globalThis.crypto?.subtle) {
+  if (!crypto?.subtle) {
     throw new Error('Web Crypto API not available');
   }
   if (!keyPromise) {
-    keyPromise = globalThis.crypto.subtle.importKey(
+    keyPromise = crypto.subtle.importKey(
       'raw',
       encoder.encode(SECRET),
       { name: 'HMAC', hash: 'SHA-256' },
@@ -38,7 +41,7 @@ async function getKey() {
 
 export async function createToken(username: string) {
   const key = await getKey();
-  const signature = await globalThis.crypto.subtle.sign('HMAC', key, encoder.encode(username));
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(username));
   return `${username}.${bufferToHex(signature)}`;
 }
 
@@ -47,7 +50,7 @@ export async function verifyToken(token: string): Promise<string | null> {
   if (!name || !signature) return null;
   const key = await getKey();
   const signatureBytes = hexToBytes(signature);
-  const isValid = await globalThis.crypto.subtle.verify(
+  const isValid = await crypto.subtle.verify(
     'HMAC',
     key,
     signatureBytes,
