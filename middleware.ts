@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth';
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const token = req.cookies.get('user')?.value;
     if (!token || !verifyToken(token)) {
       return NextResponse.redirect(new URL('/admin/login', req.url));
