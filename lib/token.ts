@@ -1,10 +1,37 @@
-import { webcrypto as nodeCrypto } from 'crypto';
-
-const crypto = globalThis.crypto ?? nodeCrypto;
+let cryptoPromise: Promise<Crypto> | undefined;
+let resolvedCrypto: Crypto | undefined;
 const SECRET = process.env.AUTH_SECRET || 'dev-secret';
 const encoder = new TextEncoder();
 
 let keyPromise: Promise<CryptoKey> | undefined;
+let keyCrypto: Crypto | undefined;
+
+async function getCrypto(): Promise<Crypto> {
+  if (resolvedCrypto) {
+    return resolvedCrypto;
+  }
+
+  if (!cryptoPromise) {
+    cryptoPromise = (async () => {
+      const globalCrypto = globalThis.crypto;
+      if (globalCrypto?.subtle) {
+        return globalCrypto;
+      }
+
+      if (typeof process !== 'undefined' && process.versions?.node) {
+        const { webcrypto } = await import('crypto');
+        if (webcrypto?.subtle) {
+          return webcrypto as Crypto;
+        }
+      }
+
+      throw new Error('Web Crypto API not available');
+    })();
+  }
+
+  resolvedCrypto = await cryptoPromise;
+  return resolvedCrypto;
+}
 
 function bufferToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
@@ -23,11 +50,9 @@ function hexToBytes(hex: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-async function getKey() {
-  if (!crypto?.subtle) {
-    throw new Error('Web Crypto API not available');
-  }
-  if (!keyPromise) {
+async function getKey(crypto: Crypto) {
+  if (!keyPromise || keyCrypto !== crypto) {
+    keyCrypto = crypto;
     keyPromise = crypto.subtle.importKey(
       'raw',
       encoder.encode(SECRET),
@@ -40,7 +65,8 @@ async function getKey() {
 }
 
 export async function createToken(username: string) {
-  const key = await getKey();
+  const crypto = await getCrypto();
+  const key = await getKey(crypto);
   const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(username));
   return `${username}.${bufferToHex(signature)}`;
 }
@@ -48,7 +74,8 @@ export async function createToken(username: string) {
 export async function verifyToken(token: string): Promise<string | null> {
   const [name, signature] = token.split('.');
   if (!name || !signature) return null;
-  const key = await getKey();
+  const crypto = await getCrypto();
+  const key = await getKey(crypto);
   const signatureBytes = hexToBytes(signature);
   const isValid = await crypto.subtle.verify(
     'HMAC',
