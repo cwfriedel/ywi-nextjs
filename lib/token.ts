@@ -2,20 +2,13 @@ let cryptoPromise: Promise<Crypto> | undefined;
 let resolvedCrypto: Crypto | undefined;
 const encoder = new TextEncoder();
 
-let cachedSecret: string | undefined;
-
 function getAuthSecret(): string {
-  if (cachedSecret) {
-    return cachedSecret;
-  }
-
   const secret = typeof process !== 'undefined' ? process.env?.AUTH_SECRET : undefined;
   if (!secret) {
     throw new Error('AUTH_SECRET environment variable is not set');
   }
 
-  cachedSecret = secret;
-  return cachedSecret;
+  return secret;
 }
 
 let keyPromise: Promise<CryptoKey> | undefined;
