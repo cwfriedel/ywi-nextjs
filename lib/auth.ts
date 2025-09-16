@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
-import { createToken, verifyToken } from './token.ts';
+import { createToken, verifyToken } from './token';
 
 const USERS_PATH = path.join(process.cwd(), 'data', 'users.json');
 
