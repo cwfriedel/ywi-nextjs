@@ -12,15 +12,22 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-    if (res.ok) {
-      router.push('/admin');
-    } else {
-      setError('Invalid credentials');
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (res.ok) {
+        router.push('/admin');
+      } else if (res.status === 401) {
+        setError('Invalid credentials');
+      } else {
+        setError('Something went wrong. Please try again later.');
+      }
+    } catch (err) {
+      console.error('Login request failed', err);
+      setError('Unable to reach the server. Please check your connection and try again.');
     }
   }
 
