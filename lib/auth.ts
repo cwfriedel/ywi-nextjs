@@ -2,22 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
-
-const SECRET = process.env.AUTH_SECRET || 'dev-secret';
-
-function sign(value: string) {
-  return crypto.createHmac('sha256', SECRET).update(value).digest('hex');
-}
-
-function createToken(username: string) {
-  return `${username}.${sign(username)}`;
-}
-
-function verifyToken(token: string): string | null {
-  const [name, signature] = token.split('.');
-  if (!name || !signature) return null;
-  return sign(name) === signature ? name : null;
-}
+import { createToken, verifyToken } from './token';
 
 const USERS_PATH = path.join(process.cwd(), 'data', 'users.json');
 
@@ -34,14 +19,14 @@ export async function verifyUser(username: string, password: string) {
   return hash === record.passwordHash;
 }
 
-export function currentUser() {
+export async function currentUser(): Promise<string | undefined> {
   const token = cookies().get('user')?.value;
   if (!token) return;
-  return verifyToken(token) || undefined;
+  return (await verifyToken(token)) || undefined;
 }
 
-export function isAuthenticated() {
-  return Boolean(currentUser());
+export async function isAuthenticated(): Promise<boolean> {
+  return Boolean(await currentUser());
 }
 
 export { createToken, verifyToken };

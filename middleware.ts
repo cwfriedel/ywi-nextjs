@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/token';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const token = req.cookies.get('user')?.value;
-    if (!token || !verifyToken(token)) {
+    if (!token || !(await verifyToken(token))) {
       return NextResponse.redirect(new URL('/admin/login', req.url));
     }
   }
