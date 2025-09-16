@@ -6,8 +6,18 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const token = req.cookies.get('user')?.value;
-    if (!token || !(await verifyToken(token))) {
-      return NextResponse.redirect(new URL('/admin/login', req.url));
+    const loginUrl = new URL('/admin/login', req.url);
+    if (!token) {
+      return NextResponse.redirect(loginUrl);
+    }
+    try {
+      const verifiedUser = await verifyToken(token);
+      if (!verifiedUser) {
+        return NextResponse.redirect(loginUrl);
+      }
+    } catch (error) {
+      console.error('Error verifying token', error);
+      return NextResponse.redirect(loginUrl);
     }
   }
   return NextResponse.next();
