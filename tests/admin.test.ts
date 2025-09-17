@@ -4,6 +4,12 @@ import { NextRequest } from 'next/server.js';
 import { POST as loginHandler } from '../app/api/login/route.ts';
 import { middleware } from '../middleware.ts';
 
+const TEST_AUTH_SECRET = 'test-secret';
+
+if (!process.env.AUTH_SECRET) {
+  process.env.AUTH_SECRET = TEST_AUTH_SECRET;
+}
+
 test('authenticated users can load the admin page', async () => {
   const loginRequest = new Request('http://localhost/api/login', {
     method: 'POST',

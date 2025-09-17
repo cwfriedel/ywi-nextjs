@@ -1,10 +1,19 @@
 let cryptoPromise: Promise<Crypto> | undefined;
 let resolvedCrypto: Crypto | undefined;
-const SECRET = process.env.AUTH_SECRET || 'dev-secret';
 const encoder = new TextEncoder();
+
+function getAuthSecret(): string {
+  const secret = typeof process !== 'undefined' ? process.env?.AUTH_SECRET : undefined;
+  if (!secret) {
+    throw new Error('AUTH_SECRET environment variable is not set');
+  }
+
+  return secret;
+}
 
 let keyPromise: Promise<CryptoKey> | undefined;
 let keyCrypto: Crypto | undefined;
+let keySecret: string | undefined;
 
 async function getCrypto(): Promise<Crypto> {
   if (resolvedCrypto) {
@@ -51,11 +60,13 @@ function hexToBytes(hex: string): ArrayBuffer {
 }
 
 async function getKey(crypto: Crypto) {
-  if (!keyPromise || keyCrypto !== crypto) {
+  const secret = getAuthSecret();
+  if (!keyPromise || keyCrypto !== crypto || keySecret !== secret) {
     keyCrypto = crypto;
+    keySecret = secret;
     keyPromise = crypto.subtle.importKey(
       'raw',
-      encoder.encode(SECRET),
+      encoder.encode(secret),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['sign', 'verify'],
